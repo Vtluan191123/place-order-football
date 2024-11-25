@@ -1,6 +1,4 @@
-package com.vtluan.place_order_football.model.controller;
-
-import java.time.Instant;
+package com.vtluan.place_order_football.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,17 +12,15 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class OrderDetail {
+public class FootballFieldAndTimeFrame {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
-    Instant createdAt;
     @ManyToOne
-    @JoinColumn(name = "orders_id")
-    Orders orders;
+    @JoinColumn(name = "football_field_id")
+    FootballField footballField;
 
     @ManyToOne
-    @JoinColumn(name = "typetime_id")
-    TypeTime typeTime;
+    @JoinColumn(name = "time_frame_id")
+    TimeFrame timeFrame;
 }

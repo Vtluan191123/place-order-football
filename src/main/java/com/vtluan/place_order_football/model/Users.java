@@ -1,9 +1,14 @@
-package com.vtluan.place_order_football.model.controller;
+package com.vtluan.place_order_football.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,6 +29,7 @@ public class Users {
 
     @NotBlank(message = "Information not empty")
     @Size(min = 3, message = "Minimum 3 characters")
+    @JsonProperty("phone_number")
     String phoneNumber;
 
     @NotBlank(message = "Information not empty")
@@ -34,7 +40,13 @@ public class Users {
     @Size(min = 3, message = "Minimum 3 characters")
     String password;
 
-    @OneToOne(mappedBy = "user")
+    String image;
+
+    @OneToOne(mappedBy = "users")
     Orders orders;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    Role role;
 
 }

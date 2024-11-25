@@ -1,8 +1,6 @@
-package com.vtluan.place_order_football.model.controller;
+package com.vtluan.place_order_football.model;
 
 import java.util.List;
-
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,8 +23,7 @@ public class Orders {
     int total;
     @OneToOne
     @JoinColumn(name = "user_id")
-    User user;
-
+    Users users;
     @OneToMany(mappedBy = "orders")
     List<OrderDetail> orderDetails;
 }
