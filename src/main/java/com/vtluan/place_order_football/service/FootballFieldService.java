@@ -102,4 +102,8 @@ public class FootballFieldService {
         return resFootballField;
     }
 
+    public Optional<FootballField> getById(long id) {
+        return this.footballFieldRepository.findById(id);
+    }
+
 }

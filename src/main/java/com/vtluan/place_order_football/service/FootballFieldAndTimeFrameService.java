@@ -20,4 +20,8 @@ public class FootballFieldAndTimeFrameService {
         fieldAndTimeFrame.setTimeFrame(idTime);
         return this.fieldAndTimeFrameRepository.save(fieldAndTimeFrame);
     }
+
+    public void deleteItem(FootballFieldAndTimeFrame item) {
+        this.fieldAndTimeFrameRepository.delete(item);
+    }
 }
