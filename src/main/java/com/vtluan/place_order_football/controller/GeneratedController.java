@@ -9,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
-@RequestMapping("/api/v1/date")
+@RequestMapping("/api/v1/generated")
 @RequiredArgsConstructor
-public class DateController {
+public class GeneratedController {
     private final DateService dateService;
 
     @GetMapping("")
     public void getMethodName() {
-        this.dateService.generatedSevenDay();
+        this.dateService.generated();
     }
 
 }

@@ -21,7 +21,17 @@ public class FootballFieldAndTimeFrameService {
         return this.fieldAndTimeFrameRepository.save(fieldAndTimeFrame);
     }
 
+    public FootballFieldAndTimeFrame getByTimeFrame(TimeFrame timeFrame) {
+        return this.fieldAndTimeFrameRepository.findByTimeFrame(timeFrame);
+    }
+
     public void deleteItem(FootballFieldAndTimeFrame item) {
         this.fieldAndTimeFrameRepository.delete(item);
     }
+
+    // create
+    public void generatedFieldAndTimeFrame(FootballFieldAndTimeFrame item) {
+        this.fieldAndTimeFrameRepository.save(item);
+    }
+
 }

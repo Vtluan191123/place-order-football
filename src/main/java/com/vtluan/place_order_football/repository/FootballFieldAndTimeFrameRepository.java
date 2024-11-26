@@ -4,8 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.vtluan.place_order_football.model.FootballFieldAndTimeFrame;
+import com.vtluan.place_order_football.model.TimeFrame;
 
 @Repository
 public interface FootballFieldAndTimeFrameRepository extends JpaRepository<FootballFieldAndTimeFrame, Long> {
-
+    FootballFieldAndTimeFrame findByTimeFrame(TimeFrame timeFrame);
 }

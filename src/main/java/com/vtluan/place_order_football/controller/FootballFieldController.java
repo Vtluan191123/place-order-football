@@ -88,4 +88,7 @@ public class FootballFieldController {
         return ResponseEntity.noContent().build();
     }
 
+    // fix generated 7 day , update date_id from column time_frame, date after date
+    // now will delete
+
 }
