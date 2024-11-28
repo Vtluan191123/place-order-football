@@ -1,6 +1,6 @@
 package com.vtluan.place_order_football.model;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +18,8 @@ public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+
+    LocalDate createdAt;
 
     @ManyToOne
     @JoinColumn(name = "orders_id")

@@ -1,8 +1,11 @@
 package com.vtluan.place_order_football.controller;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.mapping.Array;
 import org.springframework.http.HttpStatus;
@@ -18,14 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.FootballField;
 import com.vtluan.place_order_football.model.FootballFieldAndTimeFrame;
-import com.vtluan.place_order_football.model.Users;
+import com.vtluan.place_order_football.model.TimeFrame;
 import com.vtluan.place_order_football.model.dto.request.ReqFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.FootballFieldAndTimeFrameService;
 import com.vtluan.place_order_football.service.FootballFieldService;
+import com.vtluan.place_order_football.service.TimeFrameService;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/v1/football_field")
@@ -34,9 +40,10 @@ public class FootballFieldController {
 
     private final FootballFieldService footballFieldService;
     private final FootballFieldAndTimeFrameService fieldAndTimeFrameService;
+    private final TimeFrameService timeFrameService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<List<ResFootballField>>> getAllUser() {
+    public ResponseEntity<ResponseDto<List<ResFootballField>>> getAllFootField() {
         List<FootballField> listFootballField = this.footballFieldService.getAllFootballField();
 
         List<ResFootballField> resFootballFields = new ArrayList<>();
@@ -53,7 +60,8 @@ public class FootballFieldController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ResponseDto<ResFootballField>> postCreateUser(@RequestBody ReqFootballField reqFootballField)
+    public ResponseEntity<ResponseDto<ResFootballField>> postCreateFootballFreld(
+            @RequestBody ReqFootballField reqFootballField)
             throws Exception {
         if (this.footballFieldService.exitsByName(reqFootballField.getName())) {
             throw new EmailExists("Name football field already exists");
@@ -75,7 +83,7 @@ public class FootballFieldController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteFootballField(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteFootballField(@PathVariable("id") @NotNull Long id) {
         Optional<FootballField> footballOptional = this.footballFieldService.getById(id);
         if (footballOptional.isPresent()) {
             List<FootballFieldAndTimeFrame> list = footballOptional.get().getFootballFieldAndTimeFrames();
@@ -88,7 +96,53 @@ public class FootballFieldController {
         return ResponseEntity.noContent().build();
     }
 
-    // fix generated 7 day , update date_id from column time_frame, date after date
-    // now will delete
+    @PutMapping("{id}")
+    public ResponseEntity<?> putUpdateFootballField(@PathVariable @NotNull long id,
+            @RequestBody ReqFootballField reqFootballField) {
+
+        Set<Integer> listIdUpdate = reqFootballField.getTimeframe();
+
+        Optional<FootballField> footballField = this.footballFieldService.getById(id);
+        if (footballField.isPresent()) {
+
+            FootballField currenFootballField = footballField.get();
+            currenFootballField.setLocation(reqFootballField.getLocation());
+            currenFootballField.setName(reqFootballField.getName());
+            currenFootballField.setShortDescribe(reqFootballField.getShortDes());
+            currenFootballField.setImage(reqFootballField.getImage());
+            this.footballFieldService.putUpdateFootballField(currenFootballField);
+
+            List<FootballFieldAndTimeFrame> footballFieldAndTimeFrames = currenFootballField
+                    .getFootballFieldAndTimeFrames();
+            for (FootballFieldAndTimeFrame item : footballFieldAndTimeFrames) {
+                this.fieldAndTimeFrameService.deleteItem(item);
+            }
+
+            for (int item : listIdUpdate) {
+                Optional<TimeFrame> timeFrame = this.timeFrameService
+                        .getTimeFrameById(Long.parseLong(String.valueOf(item)));
+                if (timeFrame.isPresent()) {
+                    FootballFieldAndTimeFrame fieldAndTimeFrame = new FootballFieldAndTimeFrame();
+                    this.fieldAndTimeFrameService.createFootballFieldAndTime(currenFootballField, timeFrame.get());
+                }
+            }
+
+        }
+
+        // tranfer FootballField to ResFootballField
+        ResFootballField resFootballField = this.footballFieldService.reqFootballFieldToResFootballField(
+                footballField
+                        .get(),
+                reqFootballField);
+
+        // create response
+        ResponseDto<ResFootballField> responseDto = new ResponseDto();
+        responseDto.setStatus(HttpStatus.OK.value());
+        responseDto.setError(null);
+        responseDto.setData(resFootballField);
+        responseDto.setMessenger("Create football field Successful");
+        return ResponseEntity.ok().body(responseDto);
+
+    }
 
 }

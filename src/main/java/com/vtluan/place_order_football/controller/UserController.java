@@ -3,15 +3,18 @@ package com.vtluan.place_order_football.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vtluan.place_order_football.anotation.ApiResponse;
 import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.Users;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,13 +55,12 @@ public class UserController {
         ResponseDto<Users> responseDto = new ResponseDto();
         responseDto.setStatus(HttpStatus.OK.value());
         responseDto.setError(null);
-        responseDto.setData(this.userService.saveOrUpdate(user));
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto<Users>> getAllUser(@PathVariable("id") long id) {
+    public ResponseEntity<ResponseDto<Users>> getAllUser(@PathVariable("id") @NotNull long id) {
         Optional<Users> user = this.userService.getUserById(id);
 
         ResponseDto<Users> responseDto = new ResponseDto<>();
@@ -77,7 +79,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto<User>> deleteUserById(@PathVariable("id") long id) {
+    public ResponseEntity<ResponseDto<User>> deleteUserById(@PathVariable("id") @NotNull long id) {
         Optional<Users> user = this.userService.getUserById(id);
         if (user.isPresent()) {
             this.userService.deleteUserById(id);
@@ -88,7 +90,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDto<Users>> putUpdateUser(@PathVariable("id") long id, @RequestBody Users user) {
+    public ResponseEntity<ResponseDto<Users>> putUpdateUser(@PathVariable("id") @NotNull long id,
+            @RequestBody Users user) {
 
         Optional<Users> curentUser = this.userService.getUserById(id);
         if (curentUser.isPresent()) {

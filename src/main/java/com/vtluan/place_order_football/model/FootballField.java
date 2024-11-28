@@ -2,8 +2,6 @@ package com.vtluan.place_order_football.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +20,7 @@ public class FootballField {
     String name;
     String location;
     String image;
+    String shortDescribe;
     @OneToMany(mappedBy = "footballField")
     List<OrderDetail> orderDetail;
 

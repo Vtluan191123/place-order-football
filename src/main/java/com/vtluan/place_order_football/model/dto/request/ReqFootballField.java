@@ -1,6 +1,6 @@
 package com.vtluan.place_order_football.model.dto.request;
 
-import java.util.List;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +11,6 @@ public class ReqFootballField {
     String name;
     String location;
     String image;
-
-    List<Integer> timeframe;
+    String shortDes;
+    Set<Integer> timeframe;
 }

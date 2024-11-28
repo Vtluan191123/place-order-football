@@ -1,6 +1,7 @@
 package com.vtluan.place_order_football.model.dto.response;
 
 import java.util.List;
+import java.util.Set;
 
 import com.vtluan.place_order_football.model.OrderDetail;
 
@@ -17,5 +18,7 @@ public class ResFootballField {
 
     List<OrderDetail> orderDetail;
 
-    List<String> timeframe;
+    String shortDes;
+
+    Set<String> timeframe;
 }
