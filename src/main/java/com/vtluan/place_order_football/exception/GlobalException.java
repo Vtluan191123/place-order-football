@@ -15,7 +15,8 @@ public class GlobalException {
     @ExceptionHandler(value = {
             EmailExists.class,
             UsernameNotFoundException.class,
-            IdInvalidException.class
+            IdInvalidException.class,
+            TimeInvalidException.class
     })
     public ResponseEntity<ResponseDto<Users>> handlerException(Exception ex) {
 

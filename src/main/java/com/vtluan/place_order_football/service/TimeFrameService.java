@@ -1,5 +1,6 @@
 package com.vtluan.place_order_football.service;
 
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,13 +42,14 @@ public class TimeFrameService {
     public ResTimeFrame timeFrameToResTimeFrame(TimeFrame timeFrame) {
         ResTimeFrame resTimeFrame = new ResTimeFrame(
                 timeFrame.getId(),
-                timeFrame.getTime(),
-                timeFrame.getToday(),
+                timeFrame.getTimeDes(),
+                timeFrame.getBegin(),
+                timeFrame.getEnd(),
                 timeFrame.isBooked());
         return resTimeFrame;
     }
 
-    public Boolean checkTime(String time) {
-        return this.timeFrameRepository.existsByTime(time);
+    public Boolean checkTime(LocalTime begin, LocalTime end) {
+        return this.timeFrameRepository.existsByBegin(begin) && this.timeFrameRepository.existsByEnd(end);
     }
 }

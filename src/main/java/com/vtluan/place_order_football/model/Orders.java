@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +22,15 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     int total;
+    String status;
     @OneToOne
     @JoinColumn(name = "user_id")
     Users users;
     @OneToMany(mappedBy = "orders")
     List<OrderDetail> orderDetails;
+
+    @PrePersist
+    void defaultStatus() {
+        this.status = "PENDING";
+    }
 }

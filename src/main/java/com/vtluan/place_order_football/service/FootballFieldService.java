@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.vtluan.place_order_football.model.FootballField;
-import com.vtluan.place_order_football.model.FootballFieldAndTimeFrame;
+import com.vtluan.place_order_football.model.FootballFieldChildAndTimeFrame;
 import com.vtluan.place_order_football.model.TimeFrame;
 import com.vtluan.place_order_football.model.dto.request.ReqFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResFootballField;
@@ -24,8 +26,8 @@ public class FootballFieldService {
     private final TimeFrameService timeFrameService;
     private final FootballFieldAndTimeFrameService footballFieldAndTimeFrameService;
 
-    public List<FootballField> getAllFootballField() {
-        return this.footballFieldRepository.findAll();
+    public Page<FootballField> getAllFootballField(Pageable pageable) {
+        return this.footballFieldRepository.findAll(pageable);
     }
 
     public void deleteFootballFieldById(long id) {
@@ -34,18 +36,16 @@ public class FootballFieldService {
 
     public ResFootballField footballFieldToResFootballField(FootballField footballField) {
         ResFootballField resFootballField = new ResFootballField();
+
         resFootballField.setId(footballField.getId());
         resFootballField.setImage(footballField.getImage());
         resFootballField.setLocation(footballField.getLocation());
         resFootballField.setName(footballField.getName());
-        resFootballField.setOrderDetail(footballField.getOrderDetail());
+        resFootballField.setPrice(footballField.getPrice());
         resFootballField.setShortDes(footballField.getShortDescribe());
-        List<FootballFieldAndTimeFrame> footballFieldAndTimeFrames = footballField.getFootballFieldAndTimeFrames();
-        Set<String> timeFrame = new HashSet<>();
-        for (FootballFieldAndTimeFrame item : footballFieldAndTimeFrames) {
-            timeFrame.add(item.getTimeFrame().getTime());
-        }
-        resFootballField.setTimeframe(timeFrame);
+        resFootballField.setTotalField(footballField.getTotalField());
+        resFootballField.setStatus(footballField.isStatus());
+
         return resFootballField;
     }
 
@@ -72,10 +72,10 @@ public class FootballFieldService {
         footballField.setShortDescribe(reqFootballField.getShortDes());
         FootballField newFootballField = this.footballFieldRepository.save(footballField);
 
-        List<FootballFieldAndTimeFrame> fieldAndTimeFrames = new ArrayList<>();
+        List<FootballFieldChildAndTimeFrame> fieldAndTimeFrames = new ArrayList<>();
         // create FootballAndTimeFrame
         for (TimeFrame item : listtTimeFrames) {
-            FootballFieldAndTimeFrame fieldAndTimeFrame = this.footballFieldAndTimeFrameService
+            FootballFieldChildAndTimeFrame fieldAndTimeFrame = this.footballFieldAndTimeFrameService
                     .createFootballFieldAndTime(
                             newFootballField, item);
 
@@ -86,26 +86,27 @@ public class FootballFieldService {
 
     // tranfer reqfootball to resfootball
 
-    public ResFootballField reqFootballFieldToResFootballField(FootballField footballField,
-            ReqFootballField reqFootballField) {
-        ResFootballField resFootballField = new ResFootballField();
-        resFootballField.setId(footballField.getId());
-        resFootballField.setImage(footballField.getImage());
-        resFootballField.setLocation(footballField.getLocation());
-        resFootballField.setName(footballField.getName());
-        resFootballField.setOrderDetail(footballField.getOrderDetail());
-        resFootballField.setShortDes(footballField.getShortDescribe());
-        Set<Integer> timeFrameId = reqFootballField.getTimeframe();
-        Set<String> timeFrames = new HashSet<>();
-        for (int item : timeFrameId) {
-            Optional<TimeFrame> timeFrame = this.timeFrameService.getTimeFrameById(item);
-            if (timeFrame.isPresent()) {
-                timeFrames.add(timeFrame.get().getTime());
-            }
-        }
-        resFootballField.setTimeframe(timeFrames);
-        return resFootballField;
-    }
+    // public ResFootballField reqFootballFieldToResFootballField(FootballField
+    // footballField,
+    // ReqFootballField reqFootballField) {
+    // ResFootballField resFootballField = new ResFootballField();
+    // resFootballField.setId(footballField.getId());
+    // resFootballField.setImage(footballField.getImage());
+    // resFootballField.setLocation(footballField.getLocation());
+    // resFootballField.setName(footballField.getName());
+    // resFootballField.setOrderDetail(footballField.getOrderDetail());
+    // resFootballField.setShortDes(footballField.getShortDescribe());
+    // Set<Integer> timeFrameId = reqFootballField.getTimeframe();
+    // Set<String> timeFrames = new HashSet<>();
+    // for (int item : timeFrameId) {
+    // Optional<TimeFrame> timeFrame = this.timeFrameService.getTimeFrameById(item);
+    // if (timeFrame.isPresent()) {
+    // timeFrames.add(timeFrame.get().getTime());
+    // }
+    // }
+    // resFootballField.setTimeframe(timeFrames);
+    // return resFootballField;
+    // }
 
     public Optional<FootballField> getById(long id) {
         return this.footballFieldRepository.findById(id);
