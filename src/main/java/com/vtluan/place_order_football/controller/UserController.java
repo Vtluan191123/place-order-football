@@ -7,6 +7,7 @@ import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.Users;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.UserService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +22,6 @@ import java.util.Optional;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,14 +84,14 @@ public class UserController {
         if (user.isPresent()) {
             this.userService.deleteUserById(id);
         } else {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("user not found");
         }
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDto<Users>> putUpdateUser(@PathVariable("id") @NotNull long id,
-            @RequestBody Users user) {
+            @RequestBody Users user) throws Exception {
 
         Optional<Users> curentUser = this.userService.getUserById(id);
         if (curentUser.isPresent()) {

@@ -14,7 +14,6 @@ public class GlobalException {
 
     @ExceptionHandler(value = {
             EmailExists.class,
-            UsernameNotFoundException.class,
             IdInvalidException.class,
             TimeInvalidException.class
     })

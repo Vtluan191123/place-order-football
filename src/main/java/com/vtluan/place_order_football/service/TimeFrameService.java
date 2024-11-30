@@ -39,15 +39,13 @@ public class TimeFrameService {
         this.timeFrameRepository.save(timeFrame);
     }
 
-    public ResTimeFrame timeFrameToResTimeFrame(TimeFrame timeFrame) {
-        ResTimeFrame resTimeFrame = new ResTimeFrame(
-                timeFrame.getId(),
-                timeFrame.getTimeDes(),
-                timeFrame.getBegin(),
-                timeFrame.getEnd(),
-                timeFrame.isBooked());
-        return resTimeFrame;
-    }
+    // public ResTimeFrame timeFrameToResTimeFrame(TimeFrame timeFrame) {
+    // ResTimeFrame resTimeFrame = new ResTimeFrame(
+    // timeFrame.getId(),
+    // timeFrame.getTimeDes(),
+    // timeFrame.isBooked());
+    // return resTimeFrame;
+    // }
 
     public Boolean checkTime(LocalTime begin, LocalTime end) {
         return this.timeFrameRepository.existsByBegin(begin) && this.timeFrameRepository.existsByEnd(end);

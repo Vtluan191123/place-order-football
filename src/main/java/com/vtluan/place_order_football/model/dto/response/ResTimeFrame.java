@@ -8,11 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class ResTimeFrame {
     long id;
     String timeDes;
-    LocalTime begin;
-    LocalTime end;
-    boolean isBooked;
 }

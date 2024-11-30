@@ -22,15 +22,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.FootballField;
+import com.vtluan.place_order_football.model.FootballFieldChild;
 import com.vtluan.place_order_football.model.FootballFieldChildAndTimeFrame;
 import com.vtluan.place_order_football.model.TimeFrame;
+import com.vtluan.place_order_football.model.TypeField;
 import com.vtluan.place_order_football.model.dto.Pagination;
 import com.vtluan.place_order_football.model.dto.request.ReqFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResFootballField;
+import com.vtluan.place_order_football.model.dto.response.ResFootballFieldChild;
+import com.vtluan.place_order_football.model.dto.response.ResTimeFrame;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.FootballFieldAndTimeFrameService;
 import com.vtluan.place_order_football.service.FootballFieldService;
 import com.vtluan.place_order_football.service.TimeFrameService;
+import com.vtluan.place_order_football.service.TypeFieldService;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -42,15 +47,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class FootballFieldController {
 
     private final FootballFieldService footballFieldService;
-    private final FootballFieldAndTimeFrameService fieldAndTimeFrameService;
     private final TimeFrameService timeFrameService;
+    private final TypeFieldService typeFieldService;
 
     @GetMapping("")
     public ResponseEntity<ResponseDto<List<ResFootballField>>> getAllFootField(@RequestParam("page") int page) {
 
         List<ResFootballField> resFootballFields = new ArrayList<>();
 
-        Pageable pageable = PageRequest.of(page - 1, 4);
+        Pageable pageable = PageRequest.of(page - 1, 8);
         Page<FootballField> listFootballField = this.footballFieldService.getAllFootballField(pageable);
 
         for (FootballField item : listFootballField) {
@@ -65,6 +70,56 @@ public class FootballFieldController {
         responseDto.setStatus(HttpStatus.OK.value());
         responseDto.setError(null);
         responseDto.setData(resFootballFields);
+        responseDto.setMessenger("Call Api Successful");
+        return ResponseEntity.ok().body(responseDto);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<ResponseDto<ResFootballField>> getMethodName(@PathVariable("id") long id) {
+
+        ResFootballField resFootballField = new ResFootballField();
+        Optional<FootballField> fOptional = this.footballFieldService.getById(id);
+        List<ResFootballFieldChild> lResFootballFieldChilds = new ArrayList<>();
+        if (fOptional.isPresent()) {
+            Optional<TypeField> typeField = this.typeFieldService
+                    .getTypeFieldById(fOptional.get().getTypeField().getId());
+
+            List<FootballFieldChild> lFieldChilds = fOptional.get().getFootballFieldChilds();
+
+            for (FootballFieldChild item : lFieldChilds) {
+                ResFootballFieldChild resFootballFieldChild = new ResFootballFieldChild();
+                resFootballFieldChild.setId(item.getId());
+                resFootballFieldChild.setNameField(item.getNameField());
+                List<FootballFieldChildAndTimeFrame> footballFieldChildAndTimeFrames = item
+                        .getFootballFieldChildAndTimeFrames();
+                List<ResTimeFrame> restimeFrames = new ArrayList<>();
+
+                for (FootballFieldChildAndTimeFrame iChildAndTimeFrame : footballFieldChildAndTimeFrames) {
+                    Optional<TimeFrame> timeFrame = this.timeFrameService
+                            .getTimeFrameById(iChildAndTimeFrame.getTimeFrame().getId());
+                    if (timeFrame.isPresent()) {
+                        ResTimeFrame resTimeFrame = new ResTimeFrame();
+                        resTimeFrame.setId(timeFrame.get().getId());
+                        resTimeFrame.setTimeDes(timeFrame.get().getTimeDes());
+                        restimeFrames.add(resTimeFrame);
+                    }
+                }
+                resFootballFieldChild.setResTimeFrames(restimeFrames);
+                lResFootballFieldChilds.add(resFootballFieldChild);
+            }
+            resFootballField = this.footballFieldService
+                    .footballFieldToResFootballField(fOptional.get());
+            resFootballField.setResFootballFieldChild(lResFootballFieldChilds);
+            resFootballField.setTypeField(typeField.get());
+            resFootballField.setResFootballFieldChild(lResFootballFieldChilds);
+
+        }
+
+        ResponseDto<ResFootballField> responseDto = new ResponseDto<>();
+
+        responseDto.setStatus(HttpStatus.OK.value());
+        responseDto.setError(null);
+        responseDto.setData(resFootballField);
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
     }

@@ -20,9 +20,10 @@ public class FootballFieldChildAndTimeFrame {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @ManyToOne
-    @JoinColumn(name = "football_field_id")
+    @JoinColumn(name = "football_field_child_id")
     FootballFieldChild footballFieldChild;
 
+    Boolean isBooked;
     @ManyToOne
     @JoinColumn(name = "time_frame_id")
     TimeFrame timeFrame;
