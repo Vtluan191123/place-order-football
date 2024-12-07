@@ -19,6 +19,7 @@ public class ResFootballField {
     String image;
     double price;
     String shortDes;
+    String des;
     long totalField;
     Boolean status;
     TypeField typeField;

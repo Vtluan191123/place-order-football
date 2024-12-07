@@ -16,21 +16,15 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Orders {
+public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     int total;
-    String status;
     @OneToOne
     @JoinColumn(name = "user_id")
     Users users;
-    @OneToMany(mappedBy = "orders")
-    List<OrderDetail> orderDetails;
-
-    @PrePersist
-    void defaultStatus() {
-        this.status = "PENDING";
-    }
+    @OneToMany(mappedBy = "cart")
+    List<CartDetail> cartDetails;
 }

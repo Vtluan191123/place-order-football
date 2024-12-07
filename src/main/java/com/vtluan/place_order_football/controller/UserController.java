@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.Users;
+import com.vtluan.place_order_football.model.dto.request.ReqUser;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.UserService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,13 +49,17 @@ public class UserController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ResponseDto<Users>> postCreateUser(@RequestBody Users user) throws Exception {
-        if (this.userService.exitsByEmail(user.getEmail())) {
+    public ResponseEntity<ResponseDto<Users>> postCreateUser(@RequestBody ReqUser reqUser) throws Exception {
+        if (this.userService.exitsByEmail(reqUser.getEmail())) {
             throw new EmailExists("Email already exists");
         }
+
+        Users user = this.userService.tranferReqUserToUser(reqUser);
+
         ResponseDto<Users> responseDto = new ResponseDto();
         responseDto.setStatus(HttpStatus.OK.value());
         responseDto.setError(null);
+        responseDto.setData(this.userService.saveOrUpdate(user));
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
     }

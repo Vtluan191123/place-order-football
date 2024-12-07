@@ -29,5 +29,5 @@ public class FootballFieldChildAndTimeFrame {
     TimeFrame timeFrame;
 
     @OneToMany(mappedBy = "footballFieldChildAndTimeFrame")
-    List<OrderDetail> orderDetails;
+    List<CartDetail> orderDetails;
 }

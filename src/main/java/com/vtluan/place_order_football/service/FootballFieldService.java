@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class FootballFieldService {
     private final FootballFieldRepository footballFieldRepository;
     private final TimeFrameService timeFrameService;
-    private final FootballFieldAndTimeFrameService footballFieldAndTimeFrameService;
+    private final FootballFieldChildAndTimeFrameService footballFieldAndTimeFrameService;
 
     public Page<FootballField> getAllFootballField(Pageable pageable) {
         return this.footballFieldRepository.findAll(pageable);
@@ -45,6 +45,7 @@ public class FootballFieldService {
         resFootballField.setShortDes(footballField.getShortDescribe());
         resFootballField.setTotalField(footballField.getTotalField());
         resFootballField.setStatus(footballField.isStatus());
+        resFootballField.setDes(footballField.getDes());
 
         return resFootballField;
     }

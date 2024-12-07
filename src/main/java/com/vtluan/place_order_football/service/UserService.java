@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.vtluan.place_order_football.model.Role;
 import com.vtluan.place_order_football.model.Users;
+import com.vtluan.place_order_football.model.dto.request.ReqUser;
 import com.vtluan.place_order_football.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final RoleService roleService;
 
     public List<Users> getAllUsers() {
         return this.userRepository.findAll();
@@ -27,6 +31,7 @@ public class UserService {
 
     public Users saveOrUpdate(Users user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return this.userRepository.save(user);
     }
 
@@ -36,5 +41,23 @@ public class UserService {
 
     public Boolean exitsByEmail(String email) {
         return this.userRepository.existsByEmail(email);
+    }
+
+    public Users getUserByEmail(String email) {
+        return this.userRepository.findByEmail(email);
+    }
+
+    public Users tranferReqUserToUser(ReqUser reqUser) {
+
+        Users user = new Users();
+        Optional<Role> role = this.roleService.getRoleById(reqUser.getRole());
+        user.setRole(role.get());
+        user.setEmail(reqUser.getEmail());
+        user.setImage(reqUser.getImage());
+        user.setName(reqUser.getName());
+        user.setPassword(reqUser.getPassword());
+        user.setPhoneNumber(reqUser.getPhoneNumber());
+
+        return user;
     }
 }

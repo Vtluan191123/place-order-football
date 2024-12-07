@@ -32,7 +32,7 @@ import com.vtluan.place_order_football.model.dto.response.ResFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResFootballFieldChild;
 import com.vtluan.place_order_football.model.dto.response.ResTimeFrame;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
-import com.vtluan.place_order_football.service.FootballFieldAndTimeFrameService;
+import com.vtluan.place_order_football.service.FootballFieldChildAndTimeFrameService;
 import com.vtluan.place_order_football.service.FootballFieldService;
 import com.vtluan.place_order_football.service.TimeFrameService;
 import com.vtluan.place_order_football.service.TypeFieldService;
@@ -49,6 +49,8 @@ public class FootballFieldController {
     private final FootballFieldService footballFieldService;
     private final TimeFrameService timeFrameService;
     private final TypeFieldService typeFieldService;
+
+    private final FootballFieldChildAndTimeFrameService footballFieldChildAndTimeFrameService;
 
     @GetMapping("")
     public ResponseEntity<ResponseDto<List<ResFootballField>>> getAllFootField(@RequestParam("page") int page) {
@@ -101,6 +103,10 @@ public class FootballFieldController {
                         ResTimeFrame resTimeFrame = new ResTimeFrame();
                         resTimeFrame.setId(timeFrame.get().getId());
                         resTimeFrame.setTimeDes(timeFrame.get().getTimeDes());
+                        FootballFieldChildAndTimeFrame item_ = this.footballFieldChildAndTimeFrameService
+                                .getByTimeFrameAndFootballFieldChild(timeFrame.get(), item);
+
+                        resTimeFrame.setBooked(item_.getIsBooked());
                         restimeFrames.add(resTimeFrame);
                     }
                 }
@@ -123,102 +129,5 @@ public class FootballFieldController {
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
     }
-
-    // @PostMapping("")
-    // public ResponseEntity<ResponseDto<ResFootballField>> postCreateFootballFreld(
-    // @RequestBody ReqFootballField reqFootballField)
-    // throws Exception {
-    // if (this.footballFieldService.exitsByName(reqFootballField.getName())) {
-    // throw new EmailExists("Name football field already exists");
-    // }
-
-    // FootballField footballField =
-    // this.footballFieldService.createFootballField(reqFootballField);
-
-    // // tranfer FootballField to ResFootballField
-    // ResFootballField resFootballField =
-    // this.footballFieldService.reqFootballFieldToResFootballField(footballField,
-    // reqFootballField);
-
-    // // create response
-    // ResponseDto<ResFootballField> responseDto = new ResponseDto();
-    // responseDto.setStatus(HttpStatus.OK.value());
-    // responseDto.setError(null);
-    // responseDto.setData(resFootballField);
-    // responseDto.setMessenger("Create football field Successful");
-    // return ResponseEntity.ok().body(responseDto);
-    // }
-
-    // @DeleteMapping("{id}")
-    // public ResponseEntity<?> deleteFootballField(@PathVariable("id") @NotNull
-    // Long id) {
-    // Optional<FootballField> footballOptional =
-    // this.footballFieldService.getById(id);
-    // if (footballOptional.isPresent()) {
-    // List<FootballFieldAndTimeFrame> list =
-    // footballOptional.get().getFootballFieldAndTimeFrames();
-    // for (FootballFieldAndTimeFrame item : list) {
-    // this.fieldAndTimeFrameService.deleteItem(item);
-    // }
-    // this.footballFieldService.deleteFootballFieldById(id);
-    // }
-
-    // return ResponseEntity.noContent().build();
-    // }
-
-    // @PutMapping("{id}")
-    // public ResponseEntity<?> putUpdateFootballField(@PathVariable @NotNull long
-    // id,
-    // @RequestBody ReqFootballField reqFootballField) {
-
-    // Set<Integer> listIdUpdate = reqFootballField.getTimeframe();
-
-    // Optional<FootballField> footballField =
-    // this.footballFieldService.getById(id);
-    // if (footballField.isPresent()) {
-
-    // FootballField currenFootballField = footballField.get();
-    // currenFootballField.setLocation(reqFootballField.getLocation());
-    // currenFootballField.setName(reqFootballField.getName());
-    // currenFootballField.setShortDescribe(reqFootballField.getShortDes());
-    // currenFootballField.setImage(reqFootballField.getImage());
-    // this.footballFieldService.putUpdateFootballField(currenFootballField);
-
-    // List<FootballFieldAndTimeFrame> footballFieldAndTimeFrames =
-    // currenFootballField
-    // .getFootballFieldAndTimeFrames();
-    // for (FootballFieldAndTimeFrame item : footballFieldAndTimeFrames) {
-    // this.fieldAndTimeFrameService.deleteItem(item);
-    // }
-
-    // for (int item : listIdUpdate) {
-    // Optional<TimeFrame> timeFrame = this.timeFrameService
-    // .getTimeFrameById(Long.parseLong(String.valueOf(item)));
-    // if (timeFrame.isPresent()) {
-    // FootballFieldAndTimeFrame fieldAndTimeFrame = new
-    // FootballFieldAndTimeFrame();
-    // this.fieldAndTimeFrameService.createFootballFieldAndTime(currenFootballField,
-    // timeFrame.get());
-    // }
-    // }
-
-    // }
-
-    // // tranfer FootballField to ResFootballField
-    // ResFootballField resFootballField =
-    // this.footballFieldService.reqFootballFieldToResFootballField(
-    // footballField
-    // .get(),
-    // reqFootballField);
-
-    // // create response
-    // ResponseDto<ResFootballField> responseDto = new ResponseDto();
-    // responseDto.setStatus(HttpStatus.OK.value());
-    // responseDto.setError(null);
-    // responseDto.setData(resFootballField);
-    // responseDto.setMessenger("Create football field Successful");
-    // return ResponseEntity.ok().body(responseDto);
-
-    // }
 
 }

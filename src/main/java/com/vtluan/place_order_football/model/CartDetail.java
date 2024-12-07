@@ -2,6 +2,8 @@ package com.vtluan.place_order_football.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,18 +16,20 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class OrderDetail {
+public class CartDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
 
-    LocalDate createdAt;
+    double price;
 
     @ManyToOne
-    @JoinColumn(name = "orders_id")
-    Orders orders;
+    @JsonIgnore
+    @JoinColumn(name = "cart_id")
+    Cart cart;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "football_field_child_end_time_id")
     FootballFieldChildAndTimeFrame footballFieldChildAndTimeFrame;
 }

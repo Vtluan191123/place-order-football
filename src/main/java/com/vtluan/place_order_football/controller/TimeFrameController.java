@@ -35,32 +35,6 @@ public class TimeFrameController {
 
     private final TimeFrameService timeFrameService;
 
-    // @PostMapping("")
-    // public ResponseEntity<ResponseDto<ResTimeFrame>>
-    // postCreateTimeFrame(@RequestBody ReqTimeFrame reqTimeFrame)
-    // throws Exception {
-
-    // // validation
-    // // check time invalid
-    // if (this.timeFrameService.checkTime(reqTimeFrame.getBegin(),
-    // reqTimeFrame.getEnd())) {
-    // throw new TimeInvalidException("Time invalid");
-    // }
-
-    // TimeFrame timeFrame = new TimeFrame();
-    // timeFrame.setBegin(reqTimeFrame.getBegin());
-    // this.timeFrameService.createTimeFrame(timeFrame);
-
-    // ResTimeFrame item = this.timeFrameService.timeFrameToResTimeFrame(timeFrame);
-    // ResponseDto<ResTimeFrame> responseDto = new ResponseDto();
-    // responseDto.setStatus(HttpStatus.OK.value());
-    // responseDto.setError(null);
-    // responseDto.setData(item);
-    // responseDto.setMessenger("Call api successful!!!");
-
-    // return ResponseEntity.ok().body(responseDto);
-    // }
-
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteTimeFrame(@PathVariable("id") Long id) throws IdInvalidException {
 
