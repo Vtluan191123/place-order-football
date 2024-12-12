@@ -23,6 +23,9 @@ public class ResFootballField {
     long totalField;
     Boolean status;
     TypeField typeField;
+
+    @JsonProperty("list_capacity")
+    List<ResCapacity> resCapacities;
     @JsonProperty("list_football_child")
     List<ResFootballFieldChild> resFootballFieldChild;
 }

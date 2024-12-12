@@ -1,5 +1,7 @@
 package com.vtluan.place_order_football.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -10,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
@@ -45,14 +48,14 @@ public class Users {
 
     String image;
 
-    @OneToOne(mappedBy = "users")
-    Cart orders;
+    @OneToOne(mappedBy = "user")
+    Cart cart;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     Role role;
 
-    @OneToOne(mappedBy = "users")
-    Cart cart;
+    @OneToMany(mappedBy = "user")
+    List<Orders> orders;
 
 }

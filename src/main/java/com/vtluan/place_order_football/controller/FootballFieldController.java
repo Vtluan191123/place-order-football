@@ -3,31 +3,28 @@ package com.vtluan.place_order_football.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.jaxb.SpringDataJaxb.PageDto;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.FootballField;
 import com.vtluan.place_order_football.model.FootballFieldChild;
 import com.vtluan.place_order_football.model.FootballFieldChildAndTimeFrame;
+
 import com.vtluan.place_order_football.model.TimeFrame;
 import com.vtluan.place_order_football.model.TypeField;
+import com.vtluan.place_order_football.model.dto.Filter;
 import com.vtluan.place_order_football.model.dto.Pagination;
-import com.vtluan.place_order_football.model.dto.request.ReqFootballField;
+
 import com.vtluan.place_order_football.model.dto.response.ResFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResFootballFieldChild;
 import com.vtluan.place_order_football.model.dto.response.ResTimeFrame;
@@ -37,9 +34,7 @@ import com.vtluan.place_order_football.service.FootballFieldService;
 import com.vtluan.place_order_football.service.TimeFrameService;
 import com.vtluan.place_order_football.service.TypeFieldService;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/v1/football_field")
@@ -53,14 +48,13 @@ public class FootballFieldController {
     private final FootballFieldChildAndTimeFrameService footballFieldChildAndTimeFrameService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<List<ResFootballField>>> getAllFootField(@RequestParam("page") int page) {
+    public ResponseEntity<ResponseDto<List<ResFootballField>>> getAllFootField(Filter filter) {
 
         List<ResFootballField> resFootballFields = new ArrayList<>();
 
-        Pageable pageable = PageRequest.of(page - 1, 8);
-        Page<FootballField> listFootballField = this.footballFieldService.getAllFootballField(pageable);
+        Page<FootballField> listFootballField = this.footballFieldService.getFootballFieldFilter(filter);
 
-        for (FootballField item : listFootballField) {
+        for (FootballField item : listFootballField.getContent()) {
             resFootballFields.add(this.footballFieldService.footballFieldToResFootballField(item));
         }
 
@@ -73,6 +67,7 @@ public class FootballFieldController {
         responseDto.setError(null);
         responseDto.setData(resFootballFields);
         responseDto.setMessenger("Call Api Successful");
+
         return ResponseEntity.ok().body(responseDto);
     }
 
@@ -128,6 +123,13 @@ public class FootballFieldController {
         responseDto.setData(resFootballField);
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
+    }
+
+    @GetMapping("/checkTimeExpiration")
+    public ResponseEntity<Void> getMethodName() {
+
+        this.footballFieldChildAndTimeFrameService.updateFieldExperation();
+        return ResponseEntity.noContent().build();
     }
 
 }

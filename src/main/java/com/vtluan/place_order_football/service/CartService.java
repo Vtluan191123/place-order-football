@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.vtluan.place_order_football.model.Cart;
 import com.vtluan.place_order_football.model.CartDetail;
@@ -49,7 +51,7 @@ public class CartService {
     }
 
     public Cart getCartByUser(Users users) {
-        return this.cartRepository.findByUsers(users);
+        return this.cartRepository.findByUser(users);
     }
 
     public void addToCart(ReqFootballFiledChildAndTimeFrame item) {
@@ -65,7 +67,7 @@ public class CartService {
         // else create cart
         if (currentCart == null) {
             Cart newCart = new Cart();
-            newCart.setUsers(users);
+            newCart.setUser(users);
             newCart.setTotal(0);
             currentCart = this.saveOrUpdate(newCart);
         }
@@ -78,16 +80,38 @@ public class CartService {
                             timeFrame,
                             item.getFootfieldChild());
             if (footballFieldChildAndTimeFrame != null) {
-                Optional<FootballField> footballField = this.footballFieldService
-                        .getById(item.getFootfieldChild().getId());
-                footballFieldChildAndTimeFrame.setIsBooked(true);
-                this.footballFieldChildAndTimeFrameService.generatedFieldAndTimeFrame(footballFieldChildAndTimeFrame);
-                CartDetail cartDetail = new CartDetail();
-                cartDetail.setCart(currentCart);
-                cartDetail.setFootballFieldChildAndTimeFrame(footballFieldChildAndTimeFrame);
-                cartDetail.setPrice(footballField.get().getPrice());
-                this.cartDetailService.createCartDetail(cartDetail);
-                ;
+
+                Optional<FootballField> footballField = this.footballFieldService.getById(item.getIdFootField());
+                if (footballField.isPresent()) {
+                    footballFieldChildAndTimeFrame.setIsBooked(true);
+                    this.footballFieldChildAndTimeFrameService
+                            .generatedFieldAndTimeFrame(footballFieldChildAndTimeFrame);
+                    CartDetail cartDetail = new CartDetail();
+                    cartDetail.setCart(currentCart);
+                    cartDetail.setFootballFieldChildAndTimeFrame(footballFieldChildAndTimeFrame);
+                    cartDetail.setPrice(footballField.get().getPrice());
+                    this.cartDetailService.createCartDetail(cartDetail);
+                    currentCart.setTotal(currentCart.getTotal() + 1);
+                    this.saveOrUpdate(currentCart);
+
+                    List<Boolean> listStatus = new ArrayList<>();
+                    List<FootballFieldChild> fieldChilds = footballField.get().getFootballFieldChilds();
+                    for (FootballFieldChild fieldChild : fieldChilds) {
+                        List<FootballFieldChildAndTimeFrame> fieldChildAndTimeFrames = fieldChild
+                                .getFootballFieldChildAndTimeFrames();
+                        for (FootballFieldChildAndTimeFrame fieldChildAndTimeFrame : fieldChildAndTimeFrames) {
+                            listStatus.add(fieldChildAndTimeFrame.getIsBooked());
+                        }
+                    }
+
+                    Boolean checkFull = listStatus.stream().allMatch(check -> check == true);
+
+                    if (checkFull) {
+                        footballField.get().setStatus(false);
+                        this.footballFieldService.updateFootballField(footballField.get());
+                    }
+                }
+
             }
         }
     }
@@ -104,17 +128,31 @@ public class CartService {
                 FootballFieldChild footballFieldChild = fieldChildAndTimeFrame.getFootballFieldChild();
 
                 resCart.setDay(LocalDate.now());
+                resCart.setTotal(cart.getTotal());
                 ResCart.ResCartDetail resCartDetail = new ResCart.ResCartDetail();
                 resCartDetail.setFieldChildName(footballFieldChild.getNameField());
                 resCartDetail.setFieldName(footballFieldChild.getFootballField().getName());
                 resCartDetail.setTimeFrame(timeFrame.getTimeDes());
                 resCartDetail.setId(item.getId());
                 resCartDetail.setPrice(footballFieldChild.getFootballField().getPrice());
+
                 resCartDetails.add(resCartDetail);
 
                 resCart.setResCartDetails(resCartDetails);
             }
         }
         return resCart;
+
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    void resetTotolCart() {
+        List<Cart> carts = this.getAllcarts();
+        for (Cart item : carts) {
+            item.setTotal(0);
+            this.saveOrUpdate(item);
+        }
+
     }
 }

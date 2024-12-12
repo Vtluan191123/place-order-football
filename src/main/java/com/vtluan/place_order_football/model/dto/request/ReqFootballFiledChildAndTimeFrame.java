@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 public class ReqFootballFiledChildAndTimeFrame {
     String email;
+    long idFootField;
     FootballFieldChild footfieldChild;
     List<TimeFrame> timeframes;
 }

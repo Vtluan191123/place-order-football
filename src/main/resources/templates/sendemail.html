@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Sport Arena Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #1a73e8;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f1f1f1;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Football Field Booking Confirmation</h1>
+
+        <p>Dear <span th:text="${Orders.bookerName}">Customer Name</span>,</p>
+        <p>Thank you for booking a football field with us. Your booking details are as follows:</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tên Sân</th>
+                    <th>Số Sân</th>
+                    <th>Thời Gian</th>
+                    <th>Giá / giờ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item, index : ${Orders.orderDetails}">
+                    <td th:text="${item.fieldName}">Field Name</td>
+                    <td th:text="${item.fieldChildName}">Field Child Name</td>
+                    <td th:text="${item.timeFrame}">Time Slot</td>
+                    <td th:text="${item.price}">Price per hour</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>If you have any questions or need to make changes to your booking, feel free to contact us.</p>
+
+        <a href="https://www.facebook.com/luan.vuthanh.940098" class="btn">Contact Us</a>
+
+        <div class="footer">
+            <p>Sport Arena - The Best Football Fields for You!</p>
+            <p>Follow us on social media for updates and promotions!</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

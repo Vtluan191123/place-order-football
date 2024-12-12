@@ -6,25 +6,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-public class Cart {
-
+public class Capacity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    int total;
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    Users user;
-    @OneToMany(mappedBy = "cart")
-    List<CartDetail> cartDetails;
+    String name;
+
+    @OneToMany(mappedBy = "capacity")
+    List<FootballFieldAndCapacity> fieldAndCapacities;
 }

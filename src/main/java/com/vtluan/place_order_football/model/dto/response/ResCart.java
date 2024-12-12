@@ -13,6 +13,7 @@ import lombok.Setter;
 public class ResCart {
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate day;
+    long total;
 
     List<ResCartDetail> resCartDetails;
 

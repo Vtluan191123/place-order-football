@@ -8,6 +8,6 @@ import com.vtluan.place_order_football.model.Users;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
-    Cart findByUsers(Users users);
+    Cart findByUser(Users user);
 
 }

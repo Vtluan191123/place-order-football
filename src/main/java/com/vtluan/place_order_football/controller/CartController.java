@@ -23,9 +23,6 @@ import com.vtluan.place_order_football.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -44,6 +41,7 @@ public class CartController {
     private final CartService cartervice;
     private final UserService userService;
     private final CartDetailService cartDetailService;
+    private final FootballFieldService footballFieldService;
     private final FootballFieldChildAndTimeFrameService footballFieldChildAndTimeFrameService;
 
     @PostMapping("")
@@ -83,8 +81,16 @@ public class CartController {
             FootballFieldChildAndTimeFrame fieldChildAndTimeFrame = cartDetail.get()
                     .getFootballFieldChildAndTimeFrame();
             fieldChildAndTimeFrame.setIsBooked(false);
+            FootballFieldChild footballFieldChild = fieldChildAndTimeFrame.getFootballFieldChild();
+            FootballField footballField = footballFieldChild.getFootballField();
+            footballField.setStatus(true);
+            this.footballFieldService.updateFootballField(footballField);
+
             this.footballFieldChildAndTimeFrameService.generatedFieldAndTimeFrame(fieldChildAndTimeFrame);
             this.cartDetailService.deleteCartDetail(cartDetail.get());
+            Cart cart = cartDetail.get().getCart();
+            cart.setTotal(cart.getTotal() - 1);
+            this.cartervice.saveOrUpdate(cart);
         }
         return ResponseEntity.noContent().build();
     }

@@ -12,9 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
-import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,5 +40,9 @@ public class FootballField {
     @JsonIgnore
     @OneToMany(mappedBy = "footballField")
     List<FootballFieldChild> footballFieldChilds;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "footballField")
+    List<FootballFieldAndCapacity> fieldAndCapacities;
 
 }

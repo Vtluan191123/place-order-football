@@ -10,9 +10,11 @@ import com.vtluan.place_order_football.model.TimeFrame;
 
 @Repository
 public interface FootballFieldChildAndTimeFrameRepository extends JpaRepository<FootballFieldChildAndTimeFrame, Long> {
-    FootballFieldChildAndTimeFrame findByTimeFrame(@Param("timeFrame") TimeFrame timeFrame);
+    FootballFieldChildAndTimeFrame findByTimeFrame(TimeFrame timeFrame);
 
     FootballFieldChildAndTimeFrame findByAndTimeFrameAndFootballFieldChild(TimeFrame timeFrame,
             FootballFieldChild footballFieldChild);
+
+    FootballFieldChildAndTimeFrame findByFootballFieldChild(FootballFieldChild footballFieldChild);
 
 }
