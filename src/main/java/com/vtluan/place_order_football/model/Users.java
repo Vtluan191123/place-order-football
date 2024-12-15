@@ -2,10 +2,12 @@ package com.vtluan.place_order_football.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -46,6 +48,8 @@ public class Users {
     @Size(min = 3, message = "Minimum 3 characters")
     String password;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
+    String refreshToken;
     String image;
 
     @OneToOne(mappedBy = "user")
@@ -55,6 +59,7 @@ public class Users {
     @JoinColumn(name = "role_id")
     Role role;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     List<Orders> orders;
 

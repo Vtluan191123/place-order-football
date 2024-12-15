@@ -29,6 +29,11 @@ public class UserService {
         return this.userRepository.findById(id);
     }
 
+    public Users setUser(Users user) {
+
+        return this.userRepository.save(user);
+    }
+
     public Users saveOrUpdate(Users user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -59,5 +64,9 @@ public class UserService {
         user.setPhoneNumber(reqUser.getPhoneNumber());
 
         return user;
+    }
+
+    public Users getUserByRefreshTokenAndEmail(String rfTojen, String email) {
+        return this.userRepository.findByEmailAndRefreshToken(email, rfTojen);
     }
 }

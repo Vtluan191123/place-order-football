@@ -8,14 +8,21 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,48 +30,58 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
-
+import com.vtluan.place_order_football.exception.CustomAuthenticationEntryPoint;
+import com.vtluan.place_order_football.service.CustomDetailService;
 import com.vtluan.place_order_football.service.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
+@EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Value("${vtluan-jwt-screkey}")
     private String jwtKey;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // @Bean
-    // public DaoAuthenticationProvider authenticationProvider(CustomDetailService
-    // customDetailService) {
-    // DaoAuthenticationProvider daoAuthenticationProvider = new
-    // DaoAuthenticationProvider();
-    // daoAuthenticationProvider.setUserDetailsService(customDetailService);
-    // daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-    // return daoAuthenticationProvider;
-    // }
+    @Bean
+    DaoAuthenticationProvider authenticationProvider(CustomDetailService customDetailService) {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(customDetailService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/login",
+                                "/api/v1/auth/refresh_token", "/api/v1/football_field/**", "images/**")
+                        .permitAll()
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        customAuthenticationEntryPoint))
+                .sessionManagement(management -> management
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Xác nhận rằng app không tạo session
+                )
+
                 .formLogin(form -> form.disable())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Các nguồn
                                                                                  // cho phép
@@ -86,16 +103,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtEncoder jwtEncoder() {
+    JwtEncoder jwtEncoder() {
         // Tạo JwtEncoder sử dụng HMAC
         return new NimbusJwtEncoder(new ImmutableSecret(getSecretKey()));
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
+    JwtDecoder jwtDecoder() {
         // create nimbusdecode -> call method decode
 
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JwtUtil.macAlgorithm)
+
                 .build();
         return (token) -> {
             try {
@@ -104,6 +122,17 @@ public class SecurityConfig {
                 throw e;
             }
         };
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
 }

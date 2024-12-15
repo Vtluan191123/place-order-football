@@ -1,6 +1,7 @@
 package com.vtluan.place_order_football.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vtluan.place_order_football.exception.EmailExists;
@@ -9,6 +10,7 @@ import com.vtluan.place_order_football.model.dto.request.ReqUser;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.UserService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,11 +19,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private String uploadDirectory = "src/main/resources/static/images/";
 
     @GetMapping("")
     public ResponseEntity<ResponseDto<List<Users>>> getAllUser() {
@@ -101,7 +110,10 @@ public class UserController {
         Optional<Users> curentUser = this.userService.getUserById(id);
         if (curentUser.isPresent()) {
             curentUser.get().setName(user.getName());
+            curentUser.get().setEmail(user.getEmail());
             curentUser.get().setPhoneNumber(user.getPhoneNumber());
+            curentUser.get().setPassword(user.getPassword());
+            this.userService.saveOrUpdate(curentUser.get());
         } else {
             throw new UsernameNotFoundException("User not found");
         }
@@ -114,5 +126,19 @@ public class UserController {
 
         return ResponseEntity.ok(responseDto);
     }
+
+    // @GetMapping("/images")
+    // public ResponseEntity<byte[]> getImage() throws IOException {
+    // // Đọc hình ảnh từ resources
+    // ClassPathResource imgFile = new ClassPathResource("/static/images/abc.png");
+
+    // // Trả về hình ảnh dưới dạng byte[]
+    // byte[] imageBytes = Files.readAllBytes(imgFile.getFile().toPath());
+
+    // return ResponseEntity.ok()
+    // .contentType(MediaType.IMAGE_PNG)
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"abc.png\"")
+    // .body(imageBytes);
+    // }
 
 }

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-@Component("userDetailsService")
+@Service
 @RequiredArgsConstructor
 public class CustomDetailService implements UserDetailsService {
 

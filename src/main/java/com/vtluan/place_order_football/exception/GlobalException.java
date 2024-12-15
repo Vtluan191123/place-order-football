@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -21,7 +22,8 @@ public class GlobalException {
     @ExceptionHandler(value = {
             EmailExists.class,
             IdInvalidException.class,
-            TimeInvalidException.class
+            TimeInvalidException.class,
+            UsernameNotFoundException.class
     })
     public ResponseEntity<ResponseDto<Users>> handlerException(Exception ex) {
 
@@ -29,7 +31,7 @@ public class GlobalException {
         responseDto.setStatus(HttpStatus.BAD_REQUEST.value());
         responseDto.setError(ex.getMessage());
         responseDto.setData(null);
-        responseDto.setMessenger(null);
+        responseDto.setMessenger("lỗi hệ thống ");
         return ResponseEntity.badRequest().body(responseDto);
     }
 
@@ -47,6 +49,17 @@ public class GlobalException {
         responseDto.setError(ex.getMessage());
         responseDto.setData(null);
         responseDto.setMessenger(errors.size() > 1 ? errors : errors.get(0));
+        return ResponseEntity.badRequest().body(responseDto);
+    }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ResponseDto<Users>> handlerLoginfall(BadCredentialsException ex) {
+
+        ResponseDto<Users> responseDto = new ResponseDto();
+        responseDto.setStatus(HttpStatus.BAD_REQUEST.value());
+        responseDto.setError(ex.getMessage());
+        responseDto.setData(null);
+        responseDto.setMessenger("Email or Password invalid");
         return ResponseEntity.badRequest().body(responseDto);
     }
 
