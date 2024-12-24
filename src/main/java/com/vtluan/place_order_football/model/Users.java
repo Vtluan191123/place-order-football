@@ -52,6 +52,7 @@ public class Users {
     String refreshToken;
     String image;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user")
     Cart cart;
 
@@ -62,5 +63,8 @@ public class Users {
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     List<Orders> orders;
+
+    @OneToMany(mappedBy = "user")
+    List<Review> reviews;
 
 }

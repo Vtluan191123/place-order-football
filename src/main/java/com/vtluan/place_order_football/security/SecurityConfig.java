@@ -59,22 +59,25 @@ public class SecurityConfig {
         return daoAuthenticationProvider;
     }
 
+    String enpointPublic[] = { "/api/v1/auth/login",
+            "/api/v1/auth/refresh_token", "/api/v1/football_field/**", "/images/**", "/api/v1/auth/register" };
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/login",
-                                "/api/v1/auth/refresh_token", "/api/v1/football_field/**", "images/**")
+                        .requestMatchers(enpointPublic)
                         .permitAll()
                         .anyRequest().authenticated())
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                        customAuthenticationEntryPoint))
+                // .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                // customAuthenticationEntryPoint))
                 .sessionManagement(management -> management
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Xác nhận rằng app không tạo session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Xác nhận rằng app không tạo session
                 )
-
+                .oauth2Login((oauth2) -> oauth2
+                        .defaultSuccessUrl("http://localhost:4200"))
                 .formLogin(form -> form.disable())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();

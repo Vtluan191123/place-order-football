@@ -24,8 +24,11 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 
 import com.nimbusds.jose.util.Base64;
+import com.vtluan.place_order_football.exception.EmailExists;
+import com.vtluan.place_order_football.model.Role;
 import com.vtluan.place_order_football.model.Token;
 import com.vtluan.place_order_football.model.Users;
+import com.vtluan.place_order_football.model.dto.request.ReqRegister;
 import com.vtluan.place_order_football.model.dto.response.ResLogin;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class JwtUtil {
 
     private final JwtEncoder jwtEncoder;
     private final UserService userService;
+    private final RoleService roleService;
 
     public static MacAlgorithm macAlgorithm = MacAlgorithm.HS256;
 
@@ -124,7 +128,7 @@ public class JwtUtil {
             userLogin.setEmail(user.getEmail());
             userLogin.setId(user.getId());
             userLogin.setName(user.getName());
-            userLogin.setTotalCart(user.getCart().getTotal());
+            userLogin.setTotalCart(user.getCart() != null ? user.getCart().getTotal() : 0);
             userLogin.setImage(user.getImage());
             resLogin.setUserLogin(userLogin);
         }
@@ -166,5 +170,24 @@ public class JwtUtil {
             throw e;
         }
 
+    }
+
+    public Users resgisterUser(ReqRegister register) throws EmailExists {
+        boolean checkEmail = this.userService.exitsByEmail(register.getEmail());
+        if (checkEmail) {
+            throw new EmailExists("email exists !!!");
+        }
+        Users user = new Users();
+        user.setEmail(register.getEmail());
+        user.setName(register.getName());
+        user.setImage("default_avt.png");
+        user.setPhoneNumber(register.getPhoneNumber());
+        user.setPassword(register.getPassword());
+        Optional<Role> role = this.roleService.getRoleById(register.getRole());
+        if (role.isPresent()) {
+            user.setRole(role.get());
+        }
+        user = this.userService.saveOrUpdate(user);
+        return user;
     }
 }

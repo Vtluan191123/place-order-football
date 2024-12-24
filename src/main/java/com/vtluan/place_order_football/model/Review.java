@@ -1,7 +1,6 @@
 package com.vtluan.place_order_football.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,19 +13,20 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class OrderDetail {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
-    String fieldName;
-    String fieldChildName;
-    String timeFrame;
-    String price;
+    long start;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    String content;
 
     @ManyToOne
-    @JoinColumn(name = "orders_id")
-    @JsonIgnore
-    Orders orders;
+    @JoinColumn(name = "user_id")
+    Users user;
+
+    @ManyToOne
+    @JoinColumn(name = "footfield_id")
+    FootballField footballField;
 
 }

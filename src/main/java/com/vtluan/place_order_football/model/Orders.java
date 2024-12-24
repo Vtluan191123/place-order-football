@@ -1,7 +1,10 @@
 package com.vtluan.place_order_football.model;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +27,8 @@ public class Orders {
     String date;
     String status;
 
+    LocalTime time;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     Users user;
@@ -32,7 +37,9 @@ public class Orders {
     List<OrderDetail> orderDetails;
 
     @PrePersist
-    void setStatusBeforCreate() {
+    void setBeforCreate() {
         this.status = "PENDING";
+        this.time = LocalTime.now();
     }
+
 }

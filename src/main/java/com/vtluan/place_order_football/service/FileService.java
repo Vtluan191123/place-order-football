@@ -35,7 +35,7 @@ public class FileService {
     }
 
     public String upload(String directoryToSave, MultipartFile file) throws IllegalStateException, IOException {
-        String nameFile = System.currentTimeMillis() + " - " + file.getOriginalFilename();
+        String nameFile = System.currentTimeMillis() + "-" + file.getOriginalFilename();
 
         File fileUpload = new File(directoryToSave + "/" + nameFile);
 
@@ -47,4 +47,13 @@ public class FileService {
         return nameFile;
 
     }
+
+    public void deleteFile(String pathFIle) {
+        File file = new File(pathFIle);
+        if (file.exists()) {
+            file.delete();
+            System.out.println("File đã được xóa");
+        }
+    }
+
 }

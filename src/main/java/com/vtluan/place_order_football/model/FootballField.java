@@ -45,4 +45,8 @@ public class FootballField {
     @OneToMany(mappedBy = "footballField")
     List<FootballFieldAndCapacity> fieldAndCapacities;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "footballField")
+    List<Review> reviews;
+
 }

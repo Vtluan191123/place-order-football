@@ -1,9 +1,6 @@
 package com.vtluan.place_order_football.service;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;

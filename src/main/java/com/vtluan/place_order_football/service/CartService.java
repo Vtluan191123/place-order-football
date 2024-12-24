@@ -91,7 +91,7 @@ public class CartService {
                     cartDetail.setFootballFieldChildAndTimeFrame(footballFieldChildAndTimeFrame);
                     cartDetail.setPrice(footballField.get().getPrice());
                     this.cartDetailService.createCartDetail(cartDetail);
-                    currentCart.setTotal(currentCart.getTotal() + 1);
+                    currentCart.setTotal(currentCart.getTotal() >= 0 ? currentCart.getTotal() + 1 : 1);
                     this.saveOrUpdate(currentCart);
 
                     List<Boolean> listStatus = new ArrayList<>();
@@ -119,7 +119,7 @@ public class CartService {
     public ResCart fetchCartByUser(Users user) {
         ResCart resCart = new ResCart();
         List<ResCart.ResCartDetail> resCartDetails = new ArrayList<>();
-        Cart cart = user.getCart();
+        Cart cart = user.getCart() != null ? user.getCart() : null;
         if (cart != null) {
             List<CartDetail> cartDetails = cart.getCartDetails();
             for (CartDetail item : cartDetails) {
@@ -140,8 +140,9 @@ public class CartService {
 
                 resCart.setResCartDetails(resCartDetails);
             }
+            return resCart;
         }
-        return resCart;
+        return null;
 
     }
 

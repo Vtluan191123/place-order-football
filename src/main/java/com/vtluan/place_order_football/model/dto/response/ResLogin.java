@@ -19,5 +19,6 @@ public class ResLogin {
         String name;
         long totalCart;
         String image;
+        String phoneNumber;
     }
 }

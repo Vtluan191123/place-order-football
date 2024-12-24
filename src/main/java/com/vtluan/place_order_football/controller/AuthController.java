@@ -6,9 +6,11 @@ import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.nimbusds.jose.util.Base64;
+import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.Token;
 import com.vtluan.place_order_football.model.Users;
 import com.vtluan.place_order_football.model.dto.request.ReqLogin;
+import com.vtluan.place_order_football.model.dto.request.ReqRegister;
 import com.vtluan.place_order_football.model.dto.response.ResLogin;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.JwtUtil;
@@ -19,25 +21,18 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -79,7 +74,8 @@ public class AuthController {
         userLogin.setEmail(user.getEmail());
         userLogin.setId(user.getId());
         userLogin.setName(user.getName());
-        userLogin.setTotalCart(user.getCart().getTotal());
+        userLogin.setTotalCart(user.getCart() != null ? user.getCart().getTotal() : 0);
+        userLogin.setPhoneNumber(user.getPhoneNumber());
         userLogin.setImage(user.getImage());
 
         ResponseDto<ResLogin.UserLogin> responseDto = new ResponseDto<>();
@@ -137,6 +133,18 @@ public class AuthController {
         String resetRefreshToken = this.jwtUtil.setRefreshTokenWhenLogout();
 
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resetRefreshToken).build();
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDto<Users>> postRegisterUser(@RequestBody ReqRegister register) throws EmailExists {
+
+        Users user = this.jwtUtil.resgisterUser(register);
+
+        ResponseDto<Users> responseDto = new ResponseDto<>();
+        responseDto.setMessenger("refresh token success");
+        responseDto.setStatus(HttpStatus.OK.value());
+        responseDto.setData(user);
+        return ResponseEntity.ok().body(responseDto);
     }
 
 }
