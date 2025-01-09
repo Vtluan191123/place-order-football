@@ -15,19 +15,28 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/v1/file")
+@RequestMapping("/api/v1/")
 @RequiredArgsConstructor
 public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping("")
+    @PostMapping("file")
     public String postUpload(@RequestParam("folderName") String folderName,
             @RequestParam("file") MultipartFile multipartFile) throws IllegalStateException, IOException {
 
         String directoryToSave = this.fileService.createDirectory(folderName);
         String fileName = this.fileService.upload(directoryToSave, multipartFile);
         return fileName;
+    }
+
+    @PostMapping("files")
+    public String postUploads(@RequestParam("folderName") String folderName,
+            @RequestParam("files") MultipartFile[] multipartFile) throws IllegalStateException, IOException {
+
+        String directoryToSave = this.fileService.createDirectory(folderName);
+        String fileNames = this.fileService.uploads(directoryToSave, multipartFile);
+        return fileNames;
     }
 
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +47,6 @@ public class FileService {
             throw e;
         }
         return nameFile;
-
     }
 
     public void deleteFile(String pathFIle) {
@@ -54,6 +55,29 @@ public class FileService {
             file.delete();
             System.out.println("File đã được xóa");
         }
+    }
+
+    // upload a lot of files
+
+    public String uploads(String directoryToSave, MultipartFile[] file) throws IllegalStateException, IOException {
+
+        if (file == null) {
+            return "";
+        }
+        List<String> nameFiles = new ArrayList<>();
+        for (int i = 0; i < file.length; i++) {
+            String nameFile = System.currentTimeMillis() + "-" + file[i].getOriginalFilename();
+            nameFiles.add(nameFile);
+            File fileUpload = new File(directoryToSave + "/" + nameFile);
+
+            try {
+                file[i].transferTo(fileUpload);
+            } catch (IOFileUploadException e) {
+                throw e;
+            }
+        }
+
+        return String.join(",", nameFiles);
     }
 
 }

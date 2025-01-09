@@ -1,6 +1,7 @@
 package com.vtluan.place_order_football.service;
 
 import java.security.DrbgParameters.Capability;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,12 +26,16 @@ import com.vtluan.place_order_football.model.FootballFieldAndCapacity;
 import com.vtluan.place_order_football.model.FootballFieldChild;
 import com.vtluan.place_order_football.model.FootballFieldChildAndTimeFrame;
 import com.vtluan.place_order_football.model.FootballField_;
+import com.vtluan.place_order_football.model.OrderDetail;
+import com.vtluan.place_order_football.model.Orders;
 import com.vtluan.place_order_football.model.TimeFrame;
 import com.vtluan.place_order_football.model.dto.Filter;
 import com.vtluan.place_order_football.model.dto.request.ReqFootballField;
 import com.vtluan.place_order_football.model.dto.response.ResCapacity;
 import com.vtluan.place_order_football.model.dto.response.ResFootballField;
 import com.vtluan.place_order_football.repository.FootballFieldRepository;
+import com.vtluan.place_order_football.repository.OrderDetailRepository;
+import com.vtluan.place_order_football.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +45,7 @@ public class FootballFieldService {
     private final FootballFieldRepository footballFieldRepository;
     private final TimeFrameService timeFrameService;
     private final FootballFieldChildAndTimeFrameService footballFieldAndTimeFrameService;
+    private final OrderDetailService orderDetailService;
 
     public Page<FootballField> getAllFootballField(Pageable pageable) {
         return this.footballFieldRepository.findAll(pageable);
@@ -153,6 +159,20 @@ public class FootballFieldService {
         resFootballField.setTotalField(footballField.getTotalField());
         resFootballField.setStatus(footballField.isStatus());
         resFootballField.setDes(footballField.getDes());
+        resFootballField.setStar(footballField.getStar());
+
+        // check time vouchers
+        LocalDate now = LocalDate.now();
+
+        double price = footballField.getVouchers() != null && footballField.getVouchers().getBegin().isBefore(now)
+                ? footballField.getPrice() - footballField.getVouchers().getPercent() * footballField.getPrice() / 100
+                : 0;
+
+        resFootballField.setPriceVouchers(price);
+
+        // search order contain footfield
+        List<OrderDetail> orders = this.orderDetailService.getByFieldName(footballField.getName());
+        resFootballField.setTotalOrder(orders.size());
         resFootballField.setTypeField(footballField.getTypeField());
         resFootballField.setResCapacities(resCapacities);
 
@@ -198,36 +218,16 @@ public class FootballFieldService {
         this.footballFieldRepository.save(field);
     }
 
-    // tranfer reqfootball to resfootball
-
-    // public ResFootballField reqFootballFieldToResFootballField(FootballField
-    // footballField,
-    // ReqFootballField reqFootballField) {
-    // ResFootballField resFootballField = new ResFootballField();
-    // resFootballField.setId(footballField.getId());
-    // resFootballField.setImage(footballField.getImage());
-    // resFootballField.setLocation(footballField.getLocation());
-    // resFootballField.setName(footballField.getName());
-    // resFootballField.setOrderDetail(footballField.getOrderDetail());
-    // resFootballField.setShortDes(footballField.getShortDescribe());
-    // Set<Integer> timeFrameId = reqFootballField.getTimeframe();
-    // Set<String> timeFrames = new HashSet<>();
-    // for (int item : timeFrameId) {
-    // Optional<TimeFrame> timeFrame = this.timeFrameService.getTimeFrameById(item);
-    // if (timeFrame.isPresent()) {
-    // timeFrames.add(timeFrame.get().getTime());
-    // }
-    // }
-    // resFootballField.setTimeframe(timeFrames);
-    // return resFootballField;
-    // }
-
     public Optional<FootballField> getById(long id) {
         return this.footballFieldRepository.findById(id);
     }
 
     public void putUpdateFootballField(FootballField footballField) {
         this.footballFieldRepository.save(footballField);
+    }
+
+    public FootballField gFootballFieldByName(String name) {
+        return this.footballFieldRepository.findByName(name);
     }
 
 }

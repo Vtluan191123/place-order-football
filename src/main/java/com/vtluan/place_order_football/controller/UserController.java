@@ -5,34 +5,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vtluan.place_order_football.exception.EmailExists;
+import com.vtluan.place_order_football.model.FootballField;
+import com.vtluan.place_order_football.model.Review;
 import com.vtluan.place_order_football.model.Users;
 import com.vtluan.place_order_football.model.dto.request.ReqChangeInforUser;
+import com.vtluan.place_order_football.model.dto.request.ReqReview;
 import com.vtluan.place_order_football.model.dto.request.ReqUser;
+import com.vtluan.place_order_football.model.dto.response.ResUser;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.FileService;
+import com.vtluan.place_order_football.service.FootballFieldService;
+import com.vtluan.place_order_football.service.ReviewService;
 import com.vtluan.place_order_football.service.UserService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
+import com.vtluan.variable.NameDirectory;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,15 +49,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class UserController {
     private final UserService userService;
     private final FileService fileService;
+    private final FootballFieldService fieldService;
+    private final ReviewService reviewService;
+    private final FootballFieldService footballFieldService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<List<Users>>> getAllUser() {
+    public ResponseEntity<ResponseDto<List<ResUser>>> getAllUser() {
         List<Users> listUsers = this.userService.getAllUsers();
+        List<ResUser> resUsers = this.userService.tranferResUserToUser(listUsers);
 
-        ResponseDto<List<Users>> responseDto = new ResponseDto();
+        ResponseDto<List<ResUser>> responseDto = new ResponseDto();
         responseDto.setStatus(HttpStatus.OK.value());
         responseDto.setError(null);
-        responseDto.setData(listUsers);
+        responseDto.setData(resUsers);
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
     }
@@ -114,7 +119,7 @@ public class UserController {
         if (userOptional.isPresent()) {
             String image = "";
             if (repChangeInforUser.getFile() != null && repChangeInforUser.getFile().getSize() > 0) {
-                String rootFileToSave = this.fileService.createDirectory("userImages");
+                String rootFileToSave = this.fileService.createDirectory(NameDirectory.USER_IMAGES.getDirectoryName());
                 image = this.fileService.upload(rootFileToSave, repChangeInforUser.getFile());
                 // delete image old
                 Path path = Paths.get(rootFileToSave, userOptional.get().getImage());
@@ -136,6 +141,50 @@ public class UserController {
         responseDto.setMessenger("Update User Successful");
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("review")
+    public ResponseEntity<Void> postReview(@ModelAttribute ReqReview reqReview) throws Exception {
+
+        Optional<Users> user = this.userService.getUserById(reqReview.getUserId());
+        if (user.isPresent()) {
+            Review review = new Review();
+            review.setUser(user.get());
+            review.setContent(reqReview.getContent());
+            review.setStars(reqReview.getStart());
+
+            // search footfield by name
+            FootballField footballField = this.fieldService.gFootballFieldByName(reqReview.getNameFootFiled());
+            if (footballField != null) {
+                review.setFootballField(footballField);
+            } else {
+                throw new Exception("footballfield not found");
+            }
+
+            // handle files
+            String directoryToSave = this.fileService.createDirectory(NameDirectory.REVIEW_IMAGES.getDirectoryName());
+            String fileNames = this.fileService.uploads(directoryToSave,
+                    reqReview.getFiles() != null ? reqReview.getFiles() : null);
+            review.setImages(fileNames);
+            this.reviewService.saveReview(review);
+            // set stat of footfield
+
+            List<Review> reviews = this.reviewService.getAllReview();
+            double star = 0;
+            for (Review item : reviews) {
+                star += item.getStars();
+            }
+            star = star / reviews.size();
+            DecimalFormat df = new DecimalFormat("#.##");
+
+            footballField.setStar(df.format(star));
+            this.footballFieldService.updateFootballField(footballField);
+
+        } else {
+            throw new UsernameNotFoundException("user not found");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
 }

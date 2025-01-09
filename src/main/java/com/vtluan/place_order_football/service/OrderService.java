@@ -48,4 +48,8 @@ public class OrderService {
         }
 
     }
+
+    public List<Orders> getAllOrder() {
+        return this.orderRepository.findAll();
+    }
 }

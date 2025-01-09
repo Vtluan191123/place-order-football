@@ -70,14 +70,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(enpointPublic)
                         .permitAll()
-                        .anyRequest().authenticated())
-                // .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                // customAuthenticationEntryPoint))
+                        .anyRequest().permitAll())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        customAuthenticationEntryPoint))
                 .sessionManagement(management -> management
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Xác nhận rằng app không tạo session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Xác nhận rằng app không tạo session
                 )
-                .oauth2Login((oauth2) -> oauth2
-                        .defaultSuccessUrl("http://localhost:4200"))
+                // .oauth2Login((oauth2) -> oauth2
+                // .defaultSuccessUrl("http://localhost:4200"))
                 .formLogin(form -> form.disable())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();

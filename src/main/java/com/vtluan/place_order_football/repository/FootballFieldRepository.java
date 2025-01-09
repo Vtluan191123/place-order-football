@@ -14,4 +14,6 @@ public interface FootballFieldRepository
         PagingAndSortingRepository<FootballField, Long>,
         JpaSpecificationExecutor<FootballField> {
     Boolean existsByName(String name);
+
+    FootballField findByName(String name);
 }

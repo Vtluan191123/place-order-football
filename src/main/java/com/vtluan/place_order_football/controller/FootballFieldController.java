@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vtluan.place_order_football.model.FootballField;
 import com.vtluan.place_order_football.model.FootballFieldChild;
 import com.vtluan.place_order_football.model.FootballFieldChildAndTimeFrame;
-
+import com.vtluan.place_order_football.model.Review;
 import com.vtluan.place_order_football.model.TimeFrame;
 import com.vtluan.place_order_football.model.TypeField;
 import com.vtluan.place_order_football.model.dto.Filter;
@@ -31,6 +31,7 @@ import com.vtluan.place_order_football.model.dto.response.ResTimeFrame;
 import com.vtluan.place_order_football.model.dto.response.ResponseDto;
 import com.vtluan.place_order_football.service.FootballFieldChildAndTimeFrameService;
 import com.vtluan.place_order_football.service.FootballFieldService;
+import com.vtluan.place_order_football.service.ReviewService;
 import com.vtluan.place_order_football.service.TimeFrameService;
 import com.vtluan.place_order_football.service.TypeFieldService;
 
@@ -44,6 +45,7 @@ public class FootballFieldController {
     private final FootballFieldService footballFieldService;
     private final TimeFrameService timeFrameService;
     private final TypeFieldService typeFieldService;
+    private final ReviewService reviewService;
 
     private final FootballFieldChildAndTimeFrameService footballFieldChildAndTimeFrameService;
 
@@ -72,7 +74,8 @@ public class FootballFieldController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ResponseDto<ResFootballField>> getMethodName(@PathVariable("id") long id) {
+    public ResponseEntity<ResponseDto<ResFootballField>> getMethodName(@PathVariable("id") long id,
+            @RequestParam(value = "star", required = false) Long star) {
 
         ResFootballField resFootballField = new ResFootballField();
         Optional<FootballField> fOptional = this.footballFieldService.getById(id);
@@ -108,12 +111,27 @@ public class FootballFieldController {
                 resFootballFieldChild.setResTimeFrames(restimeFrames);
                 lResFootballFieldChilds.add(resFootballFieldChild);
             }
+            List<Review> reviews = new ArrayList<>();
+            List<Review> reviewsAll = fOptional.get().getReviews();
+            if (star != null) {
+                for (Review item : reviewsAll) {
+
+                    if (item.getStars() == star) {
+                        reviews.add(item);
+                    }
+
+                }
+            } else {
+                reviews = reviewsAll;
+            }
+
             resFootballField = this.footballFieldService
                     .footballFieldToResFootballField(fOptional.get());
             resFootballField.setResFootballFieldChild(lResFootballFieldChilds);
             resFootballField.setTypeField(typeField.get());
             resFootballField.setResFootballFieldChild(lResFootballFieldChilds);
-
+            resFootballField.setReviews(reviews);
+            resFootballField.setTotalReview(reviews.size());
         }
 
         ResponseDto<ResFootballField> responseDto = new ResponseDto<>();

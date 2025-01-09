@@ -29,6 +29,7 @@ public class FootballField {
     long totalField;
     String shortDescribe;
     boolean status;
+    String star;
 
     @ManyToOne
     @JoinColumn(name = "type_field_id")
@@ -48,5 +49,9 @@ public class FootballField {
     @JsonIgnore
     @OneToMany(mappedBy = "footballField")
     List<Review> reviews;
+
+    @ManyToOne
+    @JoinColumn(name = "vouchers_id")
+    Vouchers vouchers;
 
 }

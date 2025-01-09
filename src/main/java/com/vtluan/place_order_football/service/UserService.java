@@ -1,5 +1,6 @@
 package com.vtluan.place_order_football.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.vtluan.place_order_football.model.Role;
 import com.vtluan.place_order_football.model.Users;
 import com.vtluan.place_order_football.model.dto.request.ReqUser;
+import com.vtluan.place_order_football.model.dto.response.ResUser;
 import com.vtluan.place_order_football.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -69,5 +71,22 @@ public class UserService {
 
     public Users getUserByRefreshTokenAndEmail(String rfTojen, String email) {
         return this.userRepository.findByEmailAndRefreshToken(email, rfTojen);
+    }
+
+    public List<ResUser> tranferResUserToUser(List<Users> users) {
+
+        List<ResUser> resUsers = new ArrayList<>();
+
+        for (Users item : users) {
+            ResUser resUser = new ResUser();
+            resUser.setId(item.getId());
+            resUser.setEmail(item.getEmail());
+            resUser.setImage(item.getImage());
+            resUser.setName(item.getName());
+            resUser.setPhone_number(item.getPhoneNumber());
+            resUser.setRoleName(item.getRole().getName());
+            resUsers.add(resUser);
+        }
+        return resUsers;
     }
 }
