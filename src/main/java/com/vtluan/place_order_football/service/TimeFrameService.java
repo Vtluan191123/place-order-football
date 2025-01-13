@@ -23,8 +23,8 @@ public class TimeFrameService {
         return this.timeFrameRepository.findById(id);
     }
 
-    public Set<TimeFrame> getAllTimeFramesSet() {
-        return new HashSet<>(this.timeFrameRepository.findAll());
+    public List<TimeFrame> getAllTimeFrames() {
+        return this.timeFrameRepository.findAll();
     }
 
     public List<TimeFrame> getAllTimeFramesList() {

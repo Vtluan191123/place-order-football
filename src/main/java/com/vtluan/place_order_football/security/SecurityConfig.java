@@ -60,7 +60,8 @@ public class SecurityConfig {
     }
 
     String enpointPublic[] = { "/api/v1/auth/login",
-            "/api/v1/auth/refresh_token", "/api/v1/football_field/**", "/images/**", "/api/v1/auth/register" };
+            "/api/v1/auth/refresh_token", "/api/v1/football_field/**", "/images/**", "/api/v1/auth/register",
+            "/oauth2/authorization/google" };
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -70,14 +71,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(enpointPublic)
                         .permitAll()
-                        .anyRequest().permitAll())
+                        .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         customAuthenticationEntryPoint))
                 .sessionManagement(management -> management
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Xác nhận rằng app không tạo session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Xác nhận rằng app không tạo session
                 )
-                // .oauth2Login((oauth2) -> oauth2
-                // .defaultSuccessUrl("http://localhost:4200"))
+                .oauth2Login((oauth2) -> oauth2
+                        .defaultSuccessUrl("http://localhost:4200"))
                 .formLogin(form -> form.disable())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();

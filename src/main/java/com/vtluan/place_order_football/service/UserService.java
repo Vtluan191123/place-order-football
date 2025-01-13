@@ -4,11 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.vtluan.place_order_football.Spec.SpecUser;
 import com.vtluan.place_order_football.model.Role;
 import com.vtluan.place_order_football.model.Users;
+import com.vtluan.place_order_football.model.dto.FilterUser;
 import com.vtluan.place_order_football.model.dto.request.ReqUser;
 import com.vtluan.place_order_football.model.dto.response.ResUser;
 import com.vtluan.place_order_football.repository.UserRepository;
@@ -23,8 +29,11 @@ public class UserService {
 
     private final RoleService roleService;
 
-    public List<Users> getAllUsers() {
-        return this.userRepository.findAll();
+    public Page<Users> getAllUsers(FilterUser filterUser) {
+
+        Pageable pageable = PageRequest.of(filterUser.getPage() - 1, filterUser.getSize());
+        Specification spec = SpecUser.searchFieldName(filterUser.getName());
+        return this.userRepository.findAll(spec, pageable);
     }
 
     public Optional<Users> getUserById(long id) {
@@ -61,7 +70,7 @@ public class UserService {
         Optional<Role> role = this.roleService.getRoleById(reqUser.getRole());
         user.setRole(role.get());
         user.setEmail(reqUser.getEmail());
-        user.setImage(reqUser.getImage());
+        user.setImage("default_avt.png");
         user.setName(reqUser.getName());
         user.setPassword(reqUser.getPassword());
         user.setPhoneNumber(reqUser.getPhoneNumber());
@@ -71,22 +80,5 @@ public class UserService {
 
     public Users getUserByRefreshTokenAndEmail(String rfTojen, String email) {
         return this.userRepository.findByEmailAndRefreshToken(email, rfTojen);
-    }
-
-    public List<ResUser> tranferResUserToUser(List<Users> users) {
-
-        List<ResUser> resUsers = new ArrayList<>();
-
-        for (Users item : users) {
-            ResUser resUser = new ResUser();
-            resUser.setId(item.getId());
-            resUser.setEmail(item.getEmail());
-            resUser.setImage(item.getImage());
-            resUser.setName(item.getName());
-            resUser.setPhone_number(item.getPhoneNumber());
-            resUser.setRoleName(item.getRole().getName());
-            resUsers.add(resUser);
-        }
-        return resUsers;
     }
 }

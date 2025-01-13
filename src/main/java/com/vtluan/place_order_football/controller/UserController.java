@@ -8,6 +8,8 @@ import com.vtluan.place_order_football.exception.EmailExists;
 import com.vtluan.place_order_football.model.FootballField;
 import com.vtluan.place_order_football.model.Review;
 import com.vtluan.place_order_football.model.Users;
+import com.vtluan.place_order_football.model.dto.FilterUser;
+import com.vtluan.place_order_football.model.dto.Pagination;
 import com.vtluan.place_order_football.model.dto.request.ReqChangeInforUser;
 import com.vtluan.place_order_football.model.dto.request.ReqReview;
 import com.vtluan.place_order_football.model.dto.request.ReqUser;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,14 +57,16 @@ public class UserController {
     private final FootballFieldService footballFieldService;
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<List<ResUser>>> getAllUser() {
-        List<Users> listUsers = this.userService.getAllUsers();
-        List<ResUser> resUsers = this.userService.tranferResUserToUser(listUsers);
+    public ResponseEntity<ResponseDto<List<Users>>> getAllUser(FilterUser filterUser) {
+        Page<Users> listUsers = this.userService.getAllUsers(filterUser);
 
-        ResponseDto<List<ResUser>> responseDto = new ResponseDto();
+        ResponseDto<List<Users>> responseDto = new ResponseDto();
         responseDto.setStatus(HttpStatus.OK.value());
         responseDto.setError(null);
-        responseDto.setData(resUsers);
+        responseDto.setData(listUsers.toList());
+        Pagination pagination = new Pagination();
+        pagination.setTotalPage(listUsers.getTotalPages());
+        responseDto.setPage(pagination);
         responseDto.setMessenger("Call Api Successful");
         return ResponseEntity.ok().body(responseDto);
     }

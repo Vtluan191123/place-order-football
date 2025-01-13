@@ -76,7 +76,7 @@ public class FootballFieldService {
         if (filter.getCapacity() != "")
             spec = spec.and(SpecFootballField.matchCapacity(filter.getCapacity()));
 
-        if (filter.getTimeFrame() != "") {
+        if (filter.getTimeFrame() != "" && filter.getTimeFrame() != null) {
 
             String[] timeParts = filter.getTimeFrame().split("-");
 
@@ -87,7 +87,7 @@ public class FootballFieldService {
             spec = spec.and(SpecFootballField.mathchTimeSlot(localTimes));
         }
 
-        if (filter.getPrice() != "") {
+        if (filter.getPrice() != "" && filter.getPrice() != null) {
 
             Specification specPrice = Specification.where(null);
             String[] priceFrames = filter.getPrice().split(",");

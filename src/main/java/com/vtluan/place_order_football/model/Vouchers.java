@@ -28,6 +28,7 @@ public class Vouchers {
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate end;
     long percent;
+    String nameEvent;
 
     @JsonIgnore
     @OneToMany(mappedBy = "vouchers")
